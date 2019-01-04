@@ -104,74 +104,136 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 
   // Override the current require with this new one
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"popup.js":[function(require,module,exports) {
+/**
+* OpenLayers 3 Popup Overlay.
+* See [the examples](./examples) for usage. Styling can be done via CSS.
+* @constructor
+* @extends {ol.Overlay}
+* @param {Object} opt_options Overlay options, extends olx.OverlayOptions adding:
+*                              **`panMapIfOutOfView`** `Boolean` - Should the
+*                              map be panned so that the popup is entirely
+*                              within view.
+*/
+ol.Overlay.Popup = function (opt_options) {
+  var options = opt_options || {};
+  this.panMapIfOutOfView = options.panMapIfOutOfView;
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
+  if (this.panMapIfOutOfView === undefined) {
+    this.panMapIfOutOfView = true;
   }
 
-  return bundleURL;
-}
+  this.ani = options.ani;
 
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp):\/\/[^)\n]+/g);
-
-    if (matches) {
-      return getBaseURL(matches[0]);
-    }
+  if (this.ani === undefined) {
+    this.ani = ol.animation.pan;
   }
 
-  return '/';
-}
+  this.ani_opts = options.ani_opts;
 
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp):\/\/.+)\/[^/]+$/, '$1') + '/';
-}
-
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
-
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
-  };
-
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
+  if (this.ani_opts === undefined) {
+    this.ani_opts = {
+      'duration': 250
+    };
   }
 
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
+  this.container = document.createElement('div');
+  this.container.className = 'ol-popup';
+  this.closer = document.createElement('a');
+  this.closer.className = 'ol-popup-closer';
+  this.closer.href = '#';
+  this.container.appendChild(this.closer);
+  var that = this;
+  this.closer.addEventListener('click', function (evt) {
+    that.container.style.display = 'none';
+    that.closer.blur();
+    evt.preventDefault();
+  }, false);
+  this.content = document.createElement('div');
+  this.content.className = 'ol-popup-content';
+  this.container.appendChild(this.content);
+  ol.Overlay.call(this, {
+    element: this.container,
+    stopEvent: true
+  });
+};
 
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
-      }
-    }
+ol.inherits(ol.Overlay.Popup, ol.Overlay);
+/**
+ * Show the popup.
+ * @param {ol.Coordinate} coord Where to anchor the popup.
+ * @param {String} html String of HTML to display within the popup.
+ */
 
-    cssTimeout = null;
-  }, 50);
-}
+ol.Overlay.Popup.prototype.show = function (coord, html) {
+  this.setPosition(coord);
+  this.content.innerHTML = html;
+  this.container.style.display = 'block';
+  var content = this.content;
+  window.setTimeout(function () {
+    content.scrollTop = 0;
+  }, 100);
 
-module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+  if (this.panMapIfOutOfView) {
+    this.panIntoView_(coord);
+  }
+
+  return this;
+};
+/**
+ * @private
+ */
+
+
+ol.Overlay.Popup.prototype.panIntoView_ = function (coord) {
+  var popSize = {
+    width: this.getElement().clientWidth + 20,
+    height: this.getElement().clientHeight + 20
+  },
+      mapSize = this.getMap().getSize();
+  var tailHeight = 20,
+      tailOffsetLeft = 60,
+      tailOffsetRight = popSize.width - tailOffsetLeft,
+      popOffset = this.getOffset(),
+      popPx = this.getMap().getPixelFromCoordinate(coord);
+  var fromLeft = popPx[0] - tailOffsetLeft,
+      fromRight = mapSize[0] - (popPx[0] + tailOffsetRight);
+  var fromTop = popPx[1] - popSize.height + popOffset[1],
+      fromBottom = mapSize[1] - (popPx[1] + tailHeight) - popOffset[1];
+  var center = this.getMap().getView().getCenter(),
+      px = this.getMap().getPixelFromCoordinate(center);
+
+  if (fromRight < 0) {
+    px[0] -= fromRight;
+  } else if (fromLeft < 0) {
+    px[0] += fromLeft;
+  }
+
+  if (fromTop < 0) {
+    //px[1] = 170 + fromTop;
+    px[1] += fromTop; //original
+  } else if (fromBottom < 0) {
+    px[1] -= fromBottom;
+  }
+
+  if (this.ani && this.ani_opts) {
+    this.ani_opts.source = center;
+    this.getMap().beforeRender(this.ani(this.ani_opts));
+  }
+
+  this.getMap().getView().setCenter(this.getMap().getCoordinateFromPixel(px));
+  return this.getMap().getView().getCenter();
+};
+/**
+ * Hide the popup.
+ */
+
+
+ol.Overlay.Popup.prototype.hide = function () {
+  this.container.style.display = 'none';
+  return this;
+};
+},{}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -198,7 +260,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55325" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55478" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
@@ -340,4 +402,5 @@ function hmrAccept(bundle, id) {
     return hmrAccept(global.parcelRequire, id);
   });
 }
-},{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
+},{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js","popup.js"], null)
+//# sourceMappingURL=/popup.ba0889f8.map
