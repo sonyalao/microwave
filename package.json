@@ -1,0 +1,28 @@
+{
+  "name": "microwave",
+  "version": "1.0.0",
+  "description": "map of the microwaves on UW campus",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel index.html",
+    "build": "parcel build --public-url . index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sonyalao/microwave.git"
+  },
+  "author": "Sonya Lao",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sonyalao/microwave/issues"
+  },
+  "homepage": "https://github.com/sonyalao/microwave#readme",
+  "dependencies": {
+    "npm": "^6.7.0",
+    "ol": "^5.3.0"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.11.0"
+  }
+}
