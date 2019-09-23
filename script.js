@@ -1,10 +1,10 @@
+import 'ol';
 import 'ol/ol.css';
-import {Map, View} from 'ol';
 import {fromLonLat} from 'ol/proj';
+
 var olview = new ol.View({
-    center: [-13615134.70, 6050027.15],
-    resolution: 39135.75848201024,
-    minZoom: 16,
+    center: [-13615134.70, 6050027.15], // Red Square coordinates
+    zoom: 16,
     maxZoom: 20
 });
 
@@ -30,10 +30,7 @@ var popup = new ol.Overlay.Popup;
 popup.setOffset([0, -40]);
 map.addOverlay(popup);
 
-var long_string = 'long text';
-
-
-var style1 = [
+var popupStyle = [
     new ol.style.Style({
         image: new ol.style.Icon(({
             scale: 0.7,
@@ -42,7 +39,7 @@ var style1 = [
             anchorXUnits: 'fraction',
             anchorYUnits: 'fraction',
             opacity: 1,
-            src: '//raw.githubusercontent.com/jonataswalker/map-utils/master/images/marker.png'
+            src: '//raw.githubusercontent.com/sonyalao/microwave/master/Images/microwave.png'
         })),
         zIndex: 5
     }),
@@ -59,29 +56,59 @@ var style1 = [
     })
 ];
 
-var feature = new ol.Feature({
-    type: 'click',
-    desc: long_string,
-    geometry: new ol.geom.Point([-13615401.54, 6049803.54])
-});
-var feature2 = new ol.Feature({
-    type: 'click',
-    desc: "Hello",
-    geometry: new ol.geom.Point([-13615134.70, 6050027.15])
-});
-feature.setStyle(style1);
-sourceFeatures.addFeature(feature);
-
-feature2.setStyle(style1);
-sourceFeatures.addFeature(feature2);
-var feature3 = new ol.Feature({
-    type: 'click',
-    desc: "I'm from a button click!!",
-    geometry: new ol.geom.Point(fromLonLat([-122.308392, 47.6573088]))
-});
-feature3.setStyle(style1);
-sourceFeatures.addFeature(feature3);
-
+var microwaveLocs = {"locations":[
+    {
+      "name": "By George Cafe",
+      "coordinates": [-122.310445, 47.656652],
+      "description": "Busy around lunch time"
+    },
+    {
+      "name": "HUB basement",
+      "coordinates": [-122.305085, 47.655512],
+      "description": "Husky Den area"
+    },
+    {
+        "name": "HUB 1st floor", 
+        "coordinates": [-122.304838, 47.655541],
+        "description": "Notes: Starbucks wing"
+    },
+    {
+        "name": "Gowen Hall", 
+        "coordinates": [-122.307756, 47.656603],
+        "description": "3rd floor in the East Asia library lounge"
+    },
+    {
+        "name": "Rotunda at Magnuson Health Sciences",
+        "coordinates": [-122.310425, 47.651172],
+        "description": "Notes: can be crowded"
+    },
+    {
+        "name": "Loew Hall",
+        "coordinates": [-122.304485, 47.654418],
+        "description": "3rd floor of Loew, take a right at the stairs and break room on the right"
+    },
+    {
+        "name": "South Campus Center",
+        "coordinates": [-122.310910, 47.649615],
+        "description": "Where the now-defunct cafe once was"
+    },
+    {
+        "name": "Hutchinson Hall",
+        "coordinates": [47.659788, -122.306558],
+        "description": "Microwave located in the lounge area"
+    }
+  ]};
+  
+  for (var i = 0; i < microwaveLocs.locations.length; i++) {
+      var feature = new ol.Feature({
+          type: 'click',
+          name: microwaveLocs.locations[i].name,
+          desc: microwaveLocs.locations[i].description,
+          geometry: new ol.geom.Point(fromLonLat([microwaveLocs.locations[i].coordinates[0], microwaveLocs.locations[i].coordinates[1]]))
+      });
+      feature.setStyle(popupStyle);
+      sourceFeatures.addFeature(feature);
+  }
 
 function validateForm(){
 	var building = document.forms["addBuilding"]["buildingname"].value;
@@ -99,7 +126,7 @@ map.on('click', function(evt) {
         var geometry = f.getGeometry();
         var coord = geometry.getCoordinates();
         
-        var content = '<p>'+f.get('desc')+'</p>';
+        var content = '<p> Location: '+f.get('name')+'<br> Notes: '+f.get('desc')+'</p>';
         
         popup.show(coord, content);
         
