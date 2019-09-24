@@ -15,12 +15,10 @@
   <link rel="stylesheet" href="style.css">
 	
 	<div id ="menu"> 
+		<div id="menu-text">
 		<h1> Find Me A Microwave </h1> 
 		<p> Locations: </p>
-		<ul> By George Cafe </ul>
-		<ul> HUB </ul>
-		<ul> Rotunda </ul>
-		<ul> Gowen 3rd floor </ul>
+		<div id="locationList"></div>
 		<!--
 		<form name="addBuilding" onsubmit="return validateForm()">
 			Building name: <input name="buildingname" type="text">
@@ -32,8 +30,9 @@
 			<input class="button" type = "submit">
 		</form>
 		-->
-		<div>Icons made by <a href="https://www.flaticon.com/authors/xnimrodx" title="xnimrodx">xnimrodx</a> from <a href="https://www.flaticon.com/"             title="Flaticon">www.flaticon.com</a></div>
-		<p> List of microwaves sourced from this <a href="https://www.reddit.com/r/udub/comments/9jco8p/i_made_a_map_of_all_of_the_microwaves_on_campus/">Reddit thread</a></p>
+		<p id = "credits">Icons made by <a href="https://www.flaticon.com/authors/xnimrodx" title="xnimrodx">xnimrodx</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></p>
+		<p id = "credits"> List of microwaves sourced from this <a href="https://www.reddit.com/r/udub/comments/9jco8p/i_made_a_map_of_all_of_the_microwaves_on_campus/">Reddit thread</a></p>
+		</div>
 	</div>
     <div id="map" tabindex="0"></div>
     <script src="//cdnjs.cloudflare.com/ajax/libs/ol3/3.5.0/ol.min.js" type="text/javascript"></script>
