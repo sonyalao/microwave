@@ -1,6 +1,10 @@
 import 'ol';
-import 'ol/ol.css';
+//import 'ol/ol.css';
 import { fromLonLat } from 'ol/proj';
+import 'ol/ol.css';
+import {Map, View} from 'ol';
+import TileLayer from 'ol/layer/Tile';
+import OSM from 'ol/source/OSM';
 
 var olview = new ol.View({
     center: [-13615134.70, 6050027.15], // Red Square coordinates
