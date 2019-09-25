@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "parcel index.html",
-    "predeploy": "rm -rf dist && parcel build index.html --public--url /microwave",
+    "build": "parcel build --public-url . index.html",
+    "predeploy": "rm -rf dist && parcel build index.html --public-url /microwave",
     "deploy": "gh-pages -d dist"
   },
   "repository": {

@@ -6,6 +6,7 @@
 	background-color: #f5f5f0;
 	/*opacity: 0.5;*/
     float: right;
+    font-size:1.25vw;
 }
 #menu-text{
     margin: 5% 5% 5% 5%;
@@ -21,6 +22,27 @@
 
 h1, p{
 	font-family: Century Gothic;
+}
+
+p {
+    font-size: 4vw;
+}
+
+#locationList {
+    width:100%;
+    display:block;
+}
+
+#locationList li {
+    display: inline-block;
+}
+
+@media (max-width: 960px) and (min-width: 501px) {
+    #locationList li { width: 50%; } /* Show 2 logos per row on medium devices (tablets, phones in landscape) */
+}
+
+@media (max-width: 500px) {
+    #locationList li { width: 100%; } /* On small screens, show one logo per row */
 }
 
 #credits {
