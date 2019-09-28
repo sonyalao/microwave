@@ -2,9 +2,11 @@ import 'ol';
 //import 'ol/ol.css';
 import { fromLonLat } from 'ol/proj';
 import 'ol/ol.css';
-import {Map, View} from 'ol';
+import Geolocation from 'ol/Geolocation.js';
+import { Map, View } from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
+import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style.js';
 
 var olview = new ol.View({
     center: [-13615134.70, 6050027.15], // Red Square coordinates
@@ -135,15 +137,66 @@ for (var i = 0; i < microwaveLocs.locations.length; i++) {
 }
 document.getElementById("locationList").innerHTML = '<ul>' + nHTML + '</ul>';
 
-feature.setStyle(popupStyle);
-sourceFeatures.addFeature(feature);
-
 function validateForm() {
     var building = document.forms["addBuilding"]["buildingname"].value;
     var description = document.forms["addBuilding"]["description"].value;
     var loc = document.forms["addBuilding"]["location"].value;
     alert("this worked");
 }
+
+var geolocation = new ol.Geolocation({
+    // enableHighAccuracy must be set to true to have the heading value.
+    trackingOptions: {
+        enableHighAccuracy: true
+    },
+    projection: olview.getProjection()
+});
+
+document.getElementById('track').addEventListener('change', function () {
+    geolocation.setTracking(this.checked);
+});
+
+
+geolocation.on('change', function () {
+    console.log('accuracy: ' + geolocation.getAccuracy() + ' [m]');
+	console.log('position: ' + geolocation.getPosition() + ' [m]');
+});
+
+
+// handle geolocation error.
+geolocation.on('error', function(error) {
+  var info = document.getElementById('info');
+  info.innerHTML = error.message;
+  info.style.display = '';
+});
+
+var accuracyFeature = new ol.Feature();
+geolocation.on('change:accuracyGeometry', function () {
+    accuracyFeature.setGeometry(geolocation.getAccuracyGeometry());
+});
+
+var positionFeature = new ol.Feature();
+positionFeature.setStyle(new ol.style.Style({
+    image: new ol.style.Circle({
+        radius: 6,
+        fill: new ol.style.Fill({
+            color: '#3399CC'
+        }),
+        stroke: new ol.style.Stroke({
+            color: '#fff',
+            width: 2
+        })
+    })
+}));
+
+geolocation.on('change:position', function () {
+    var coordinates = geolocation.getPosition();
+    positionFeature.setGeometry(coordinates ?
+        new ol.geom.Point(coordinates) : null);
+});
+
+sourceFeatures.addFeature(accuracyFeature);
+sourceFeatures.addFeature(positionFeature);
 
 map.on('click', function (evt) {
     var f = map.forEachFeatureAtPixel(

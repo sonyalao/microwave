@@ -11,6 +11,7 @@
 			alert("this worked" + building);
 		}
 	</script>
+	<link rel="stylesheet" href="https://openlayers.org/en/v5.3.0/css/ol.css" type="text/css">
 </head>
 
 <body>
@@ -19,7 +20,12 @@
 	<div id="menu">
 		<div id="menu-text">
 			<h1> Find Me A Microwave </h1>
-			<p> Locations: </p>
+			<label for="track">
+				Show my location
+				<input id="track" type="checkbox"/>
+			</label>
+			<div id="info"></div>
+			<h2> Locations: </h2>
 			<div id="locationList"></div>
 			<!--
 		<form name="addBuilding" onsubmit="return validateForm()">
